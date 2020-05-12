@@ -24,18 +24,16 @@ public class Steps extends WebDriverSettings {
 
     @Step("Открываем ЯндексМаркет")
     public void goToYandexMarket() {
+
         try {
-
-            wait.until(ExpectedConditions.visibilityOf(driver.findElement(By
-                    .xpath("//a[@data-id='market']")))).click();
-
-            Thread.sleep(1000);
+            wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By
+                    .xpath("//a[@data-id='market']"))))
+                    .click();
+            wait.until(ExpectedConditions
+                    .numberOfWindowsToBe(2));
             List<String> tabs = new ArrayList<>(driver.getWindowHandles());
             driver.switchTo().window(tabs.get(1));
-//            for (String tab : tabs) {
-//                System.out.println("index of tab: " + tabs.indexOf(tab) + "  tab name: " + tab);
-//                driver.switchTo().window(tab);
-//            }
+
         } catch (Exception e) {
             System.out.println("goToYandexMarket failed");
         }
