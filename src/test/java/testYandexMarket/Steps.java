@@ -55,11 +55,8 @@ public class Steps extends WebDriverSettings {
     @Step("Устанавливаем цену от  {from} до {to}")
     public void setPrice(String from, String to) {
         try {
-
             WebElement priceFrom = wait.until(ExpectedConditions.elementToBeClickable(By.id("glpricefrom")));
             WebElement priceTo = wait.until(ExpectedConditions.elementToBeClickable(By.id("glpriceto")));
-            // ждем что на странице загрузилось как минимум 5 ноутбуков
-            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(productName), 5));
 
             priceFrom.sendKeys(from);
             priceTo.sendKeys(to + "\n");
@@ -115,14 +112,15 @@ public class Steps extends WebDriverSettings {
             listBox.click();
             // ждем пока появится "Показывать по 12" в выпадающем списке
             wait.until(ExpectedConditions.elementToBeClickable(driver
-                    .findElement(By.xpath(twelveLocator)))).click();
-
+                    .findElement(By.xpath(twelveLocator))))
+                    .click();
+            // ожидание обновления страницы
             checkStalenessOf(list);
             list.clear();
             list = checkPageIsUpdated(10);
             Assertions.assertEquals(12, list.size(), "Actual list size is" + list.size());
         } catch (Exception e) {
-            System.out.println("Select 12 went wrong");
+            System.out.println("setTwelvePerPage failed");
         }
     }
 
