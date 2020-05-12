@@ -41,13 +41,10 @@ public class Steps extends WebDriverSettings {
 
     @Step("Переходим в раздел по селектору {selector}")
     public void selectChapter(String selector) {
-        System.out.println(driver.getTitle());
         try {
-            WebElement chapter = (new WebDriverWait(driver, 10))
-                    .until(ExpectedConditions.elementToBeClickable(By
-                            .xpath(selector)));
-            chapter.click();
-            System.out.println(driver.getTitle());
+            wait.until(ExpectedConditions
+                    .elementToBeClickable(By.xpath(selector)))
+                    .click();
             System.out.println("selectChapter " + selector + " ...successful");
 
         } catch (Exception e) {
