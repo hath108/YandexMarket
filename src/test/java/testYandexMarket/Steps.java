@@ -23,9 +23,6 @@ public class Steps extends WebDriverSettings {
     private final By PRICETO = By.id("glpriceto");
     private final By SEARCHFIELD = By.id("header-search");
     private final By SUBMITBUTTON = By.xpath("//button[@type='submit']");
-
-
-
     private List<WebElement> list = new ArrayList<>();
 
     @Step("Открываем главную страницу Яндекса")
@@ -164,7 +161,6 @@ public class Steps extends WebDriverSettings {
             wait.until(ExpectedConditions.stalenessOf(el));
             if (count++ > 10) break;
         }
-        logger.info("checkStalenessOf ...successful");
     }
 
     public List<WebElement> collectNamesOfProductsOnPage(int amount) {
@@ -173,7 +169,6 @@ public class Steps extends WebDriverSettings {
         wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(PRODUCTNAME, amount));
         // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
         list = driver.findElements(PRODUCTNAME);
-        logger.info("checkPageIsUpdated ...successful");
         return list;
     }
 }
