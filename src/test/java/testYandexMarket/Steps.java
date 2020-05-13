@@ -16,7 +16,7 @@ public class Steps extends WebDriverSettings {
     private String productName = "//h3/a[contains(@title, '')]";
     private List<WebElement> list;
 
-    @Step("Открываем Яндекс")
+    @Step("Открываем главную страницу Яндекса")
     public void openYandexPage() {
         driver.get("https://yandex.ru/");
         System.out.println(driver.getTitle());
