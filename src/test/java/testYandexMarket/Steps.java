@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 
 import java.util.ArrayList;
@@ -23,9 +22,11 @@ public class Steps extends WebDriverSettings {
     private final By PRICEFROM = By.id("glpricefrom");
     private final By PRICETO = By.id("glpriceto");
     private final By SEARCHFIELD = By.id("header-search");
+    private final By SUBMITBUTTON = By.xpath("//button[@type='submit']");
 
 
-    private List<WebElement> list;
+
+    private List<WebElement> list = new ArrayList<>();
 
     @Step("Открываем главную страницу Яндекса")
     public void openYandexPage() {
@@ -83,7 +84,7 @@ public class Steps extends WebDriverSettings {
         try {
             // проверяем что на странице загрузилось как минимум 5 ноутбуков
             // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
-            List<WebElement> list = checkPageIsUpdated(10);
+            list = collectNamesOfProductsOnPage(10);
 
             // ждем появления на странице чекбоксов с переданными параметрами и чекаем
             for (String arg : args) {
@@ -102,17 +103,16 @@ public class Steps extends WebDriverSettings {
     @Step("Устанавлием 12 позиций на страницу")
     public void setTwelvePerPage() {
         try {
-            list = checkPageIsUpdated(10);
+            list = collectNamesOfProductsOnPage(10);
             // ждем появления на странице селектора количества отображаемых элементов
             waitFor(LISTBOX).click();
             // ждем пока появится "Показывать по 12" в выпадающем списке
             waitFor(TWELVELOCATOR).click();
             // ожидание обновления страницы
             checkStalenessOf(list);
-            list.clear();
-            list = checkPageIsUpdated(11);
+            list = collectNamesOfProductsOnPage(11);
             Assertions.assertEquals(12, list.size(), "Actual list size is" + list.size());
-            logger.info("Элементов на странице: " + list.size() );
+            logger.info("Элементов на странице: " + list.size());
         } catch (Exception e) {
             logger.error("setTwelvePerPage failed");
         }
@@ -120,32 +120,32 @@ public class Steps extends WebDriverSettings {
 
     @Step("Выбираем первый элемент из списка")
     public String selectFirstElement() {
-        String firstEl = "";
+        String firstElementOnPage = "";
         try {
-            list = checkPageIsUpdated(1);
-            firstEl = list.get(0).getText();
-                  //  waitFor(PRODUCTNAME).getText();
+            list = collectNamesOfProductsOnPage(1);
+            firstElementOnPage = waitFor(PRODUCTNAME).getText();
 
-            logger.info("firstEl = " + firstEl);
+            logger.info("firstElementOnPage = " + firstElementOnPage);
             logger.info("selectFirstElement ...successful");
 
         } catch (Exception e) {
             logger.error("selectFirstElement failed");
         }
-        return firstEl;
+        return firstElementOnPage;
     }
 
     @Step("Проверка на совпадение первого элемента списка")
     public void assertFirstElement(String element) {
 
         try {
-            waitFor(SEARCHFIELD).sendKeys(element + "\n");
-            String secondFirstEl = wait.until(ExpectedConditions
-                    .refreshed(ExpectedConditions.elementToBeClickable(PRODUCTNAME)))
-                    .getText();
+            list = collectNamesOfProductsOnPage(5);
+            waitFor(SEARCHFIELD).sendKeys(element);
+            waitFor(SUBMITBUTTON).click();
+            checkStalenessOf(list);
+            String newFirstElementOnPage = waitFor(PRODUCTNAME).getText();
+            logger.info("newFirstElementOnPage = " + newFirstElementOnPage);
+            Assertions.assertEquals(element, newFirstElementOnPage, "Elements are not equal");
 
-            Assertions.assertEquals(element, secondFirstEl, "Elements are not equal");
-            logger.info("secondFirstEl = " + secondFirstEl);
         } catch (Exception e) {
             logger.error("assertFirstElement failed");
         }
@@ -167,7 +167,8 @@ public class Steps extends WebDriverSettings {
         logger.info("checkStalenessOf ...successful");
     }
 
-    public List<WebElement> checkPageIsUpdated(int amount) {
+    public List<WebElement> collectNamesOfProductsOnPage(int amount) {
+        list.clear();
         // проверяем что на странице загрузилось как минимум переданное кол-во ноутбуков
         wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(PRODUCTNAME, amount));
         // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
