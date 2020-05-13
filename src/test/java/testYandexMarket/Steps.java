@@ -19,6 +19,8 @@ public class Steps extends WebDriverSettings {
 
     private final By PRODUCTNAME = By.xpath("//h3/a[contains(@title, '')]");
     private final By YANDEXMARKETPAGE = By.xpath("//a[@data-id='market']");
+    private final By LISTBOX = By.xpath("//button[@role='listbox']");
+    private final By TWELVELOCATOR = By.xpath("//span[contains(text(), 'Показывать по 12')]");
     private final By PRICEFROM = By.id("glpricefrom");
     private final By PRICETO = By.id("glpriceto");
     private final By SEARCHFIELD = By.id("header-search");
@@ -108,15 +110,14 @@ public class Steps extends WebDriverSettings {
     public void setTwelvePerPage() {
         try {
             list = checkPageIsUpdated(10);
-            WebElement listBox;
-            String twelveLocator = "//span[contains(text(), 'Показывать по 12')]";
+
             // ждем появления на странице селектора количества отображаемых элементов
-            wait.until(ExpectedConditions.elementToBeClickable(
-                    listBox = driver.findElement(By.xpath("//button[@role='listbox']"))));
-            listBox.click();
+            wait.until(ExpectedConditions.elementToBeClickable(driver
+                    .findElement(LISTBOX)))
+                    .click();
             // ждем пока появится "Показывать по 12" в выпадающем списке
             wait.until(ExpectedConditions.elementToBeClickable(driver
-                    .findElement(By.xpath(twelveLocator))))
+                    .findElement(TWELVELOCATOR)))
                     .click();
             // ожидание обновления страницы
             checkStalenessOf(list);
