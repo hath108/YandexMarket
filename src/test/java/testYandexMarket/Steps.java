@@ -37,9 +37,7 @@ public class Steps extends WebDriverSettings {
     public void goToYandexMarket() {
 
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(driver
-                    .findElement(YANDEXMARKETPAGE)))
-                    .click();
+            waitFor(YANDEXMARKETPAGE).click();
             wait.until(ExpectedConditions
                     .numberOfWindowsToBe(2));
             List<String> tabs = new ArrayList<>(driver.getWindowHandles());
@@ -53,9 +51,7 @@ public class Steps extends WebDriverSettings {
     @Step("Переходим в раздел по селектору {selector}")
     public void selectChapter(String selector) {
         try {
-            wait.until(ExpectedConditions
-                    .elementToBeClickable(By.xpath(selector)))
-                    .click();
+            waitFor(By.xpath(selector)).click();
             logger.info("selectChapter " + selector + " ...successful");
 
         } catch (Exception e) {
@@ -66,8 +62,8 @@ public class Steps extends WebDriverSettings {
     @Step("Устанавливаем цену от  {from} до {to}")
     public void setPrice(String from, String to) {
         try {
-            WebElement priceFrom = wait.until(ExpectedConditions.elementToBeClickable(PRICEFROM));
-            WebElement priceTo = wait.until(ExpectedConditions.elementToBeClickable(PRICETO));
+            WebElement priceFrom = waitFor(PRICEFROM);
+            WebElement priceTo = waitFor(PRICETO);
 
             priceFrom.sendKeys(from);
             priceTo.sendKeys(to + "\n");
@@ -75,7 +71,6 @@ public class Steps extends WebDriverSettings {
                     .elementToBeClickable(PRICETO)));
 
             logger.info("Price is set from: " + priceFrom.getAttribute("value") + " to: " + priceTo.getAttribute("value"));
-
             logger.info("setPrice ...successful");
 
         } catch (Exception e) {
@@ -87,16 +82,13 @@ public class Steps extends WebDriverSettings {
     public void setManufacturers(String[] args) {
         try {
             // проверяем что на странице загрузилось как минимум 5 ноутбуков
-            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(PRODUCTNAME, 5));
-
             // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
-            List<WebElement> list = driver.findElements(PRODUCTNAME);
+            List<WebElement> list = checkPageIsUpdated(10);
 
             // ждем появления на странице чекбоксов с переданными параметрами и чекаем
             for (String arg : args) {
                 By manufacturer = By.xpath("//div/span[text()='" + arg + "']");
-                wait.until(ExpectedConditions.elementToBeClickable(manufacturer))
-                        .click();
+                waitFor(manufacturer).click();
             }
             // ожидание обновления страницы
             checkStalenessOf(list);
@@ -111,15 +103,10 @@ public class Steps extends WebDriverSettings {
     public void setTwelvePerPage() {
         try {
             list = checkPageIsUpdated(10);
-
             // ждем появления на странице селектора количества отображаемых элементов
-            wait.until(ExpectedConditions.elementToBeClickable(driver
-                    .findElement(LISTBOX)))
-                    .click();
+            waitFor(LISTBOX);
             // ждем пока появится "Показывать по 12" в выпадающем списке
-            wait.until(ExpectedConditions.elementToBeClickable(driver
-                    .findElement(TWELVELOCATOR)))
-                    .click();
+            waitFor(TWELVELOCATOR);
             // ожидание обновления страницы
             checkStalenessOf(list);
             list.clear();
@@ -134,11 +121,9 @@ public class Steps extends WebDriverSettings {
     public String selectFirstElement() {
         String firstEl = "";
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 15);
-            wait.until(ExpectedConditions
-                    .numberOfElementsToBeMoreThan(PRODUCTNAME, 5));
+            checkPageIsUpdated(1);
+            firstEl = waitFor(PRODUCTNAME).getText();
 
-            firstEl = driver.findElement(PRODUCTNAME).getText();
             logger.info("firstEl = " + firstEl);
             logger.info("selectFirstElement ...successful");
 
@@ -152,17 +137,19 @@ public class Steps extends WebDriverSettings {
     public void assertFirstElement(String element) {
 
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(driver
-                    .findElement(SEARCHFIELD)))
-                    .sendKeys(element + "\n");
-            String secondFirstEl = wait.until(ExpectedConditions
-                    .presenceOfElementLocated(PRODUCTNAME))
-                    .getText();
+            waitFor(SEARCHFIELD).sendKeys(element + "\n");
+            String secondFirstEl = waitFor(PRODUCTNAME).getText();
+
             Assertions.assertEquals(element, secondFirstEl, "Elements are not equal");
             logger.info("secondFirstEl = " + secondFirstEl);
         } catch (Exception e) {
             logger.error("assertFirstElement failed");
         }
+    }
+
+    private WebElement waitFor(By selector) {
+        return wait.until(ExpectedConditions.elementToBeClickable(driver
+                .findElement(selector)));
     }
 
     public void checkStalenessOf(List<WebElement> list) {
