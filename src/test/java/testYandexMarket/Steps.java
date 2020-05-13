@@ -4,12 +4,11 @@ package testYandexMarket;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
 
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class Steps extends WebDriverSettings {
     @Step("Открываем главную страницу Яндекса")
     public void openYandexPage() {
         driver.get("https://yandex.ru/");
-        System.out.println(driver.getTitle());
+        logger.info(driver.getTitle());
     }
 
     @Step("Открываем ЯндексМаркет")
@@ -47,7 +46,7 @@ public class Steps extends WebDriverSettings {
             driver.switchTo().window(tabs.get(1));
 
         } catch (Exception e) {
-            System.out.println("goToYandexMarket failed");
+            logger.error("goToYandexMarket failed");
         }
     }
 
@@ -57,10 +56,10 @@ public class Steps extends WebDriverSettings {
             wait.until(ExpectedConditions
                     .elementToBeClickable(By.xpath(selector)))
                     .click();
-            System.out.println("selectChapter " + selector + " ...successful");
+            logger.info("selectChapter " + selector + " ...successful");
 
         } catch (Exception e) {
-            System.out.println("Chapter " + selector + " not found");
+            logger.error("Chapter " + selector + " not found");
         }
     }
 
@@ -72,13 +71,15 @@ public class Steps extends WebDriverSettings {
 
             priceFrom.sendKeys(from);
             priceTo.sendKeys(to + "\n");
+            wait.until(ExpectedConditions.refreshed(ExpectedConditions
+                    .elementToBeClickable(PRICETO)));
 
-            System.out.println("Price is set from: " + priceFrom.getAttribute("value") + " to: " + priceTo.getAttribute("value"));
+            logger.info("Price is set from: " + priceFrom.getAttribute("value") + " to: " + priceTo.getAttribute("value"));
 
-            System.out.println("setPrice ...successful");
+            logger.info("setPrice ...successful");
 
         } catch (Exception e) {
-            System.out.println("Price fields not found");
+            logger.error("Price fields not found");
         }
     }
 
@@ -99,10 +100,10 @@ public class Steps extends WebDriverSettings {
             }
             // ожидание обновления страницы
             checkStalenessOf(list);
-            System.out.println("setManufacturers ...successful");
+            logger.info("setManufacturers ...successful");
 
         } catch (Exception e) {
-            System.out.println("Manufacturers not found");
+            logger.error("Manufacturers not found");
         }
     }
 
@@ -125,7 +126,7 @@ public class Steps extends WebDriverSettings {
             list = checkPageIsUpdated(10);
             Assertions.assertEquals(12, list.size(), "Actual list size is" + list.size());
         } catch (Exception e) {
-            System.out.println("setTwelvePerPage failed");
+            logger.error("setTwelvePerPage failed");
         }
     }
 
@@ -138,11 +139,11 @@ public class Steps extends WebDriverSettings {
                     .numberOfElementsToBeMoreThan(PRODUCTNAME, 5));
 
             firstEl = driver.findElement(PRODUCTNAME).getText();
-            System.out.println("firstEl = " + firstEl);
-            System.out.println("selectFirstElement ...successful");
+            logger.info("firstEl = " + firstEl);
+            logger.info("selectFirstElement ...successful");
 
         } catch (Exception e) {
-            System.out.println("selectFirstElement failed");
+            logger.error("selectFirstElement failed");
         }
         return firstEl;
     }
@@ -151,19 +152,16 @@ public class Steps extends WebDriverSettings {
     public void assertFirstElement(String element) {
 
         try {
-            driver.findElement(SEARCHFIELD)
+            wait.until(ExpectedConditions.elementToBeClickable(driver
+                    .findElement(SEARCHFIELD)))
                     .sendKeys(element + "\n");
             String secondFirstEl = wait.until(ExpectedConditions
                     .presenceOfElementLocated(PRODUCTNAME))
                     .getText();
-
-            System.out.println("secondFirstEl = " + secondFirstEl);
-
             Assertions.assertEquals(element, secondFirstEl, "Elements are not equal");
-            System.out.println("assertFirstElement ...successful");
-
+            logger.info("secondFirstEl = " + secondFirstEl);
         } catch (Exception e) {
-            System.out.println("assertFirstElement failed");
+            logger.error("assertFirstElement failed");
         }
     }
 
@@ -175,7 +173,7 @@ public class Steps extends WebDriverSettings {
             wait.until(ExpectedConditions.stalenessOf(el));
             if (count++ > 10) break;
         }
-        System.out.println("checkStalenessOf ...successful");
+        logger.info("checkStalenessOf ...successful");
     }
 
     public List<WebElement> checkPageIsUpdated(int amount) {
@@ -183,7 +181,7 @@ public class Steps extends WebDriverSettings {
         wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(PRODUCTNAME, amount));
         // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
         list = driver.findElements(PRODUCTNAME);
-        System.out.println("checkPageIsUpdated ...successful");
+        logger.info("checkPageIsUpdated ...successful");
         return list;
     }
 }

@@ -10,7 +10,6 @@ public class Tests extends Steps {
     private String notebooksSelector = "//a[text()='Ноутбуки']";
 
 
-
     @Test
     @Description(value = "Полный цикл тестов")
     public void testYandexPage() {
