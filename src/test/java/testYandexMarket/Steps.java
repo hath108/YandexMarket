@@ -104,14 +104,15 @@ public class Steps extends WebDriverSettings {
         try {
             list = checkPageIsUpdated(10);
             // ждем появления на странице селектора количества отображаемых элементов
-            waitFor(LISTBOX);
+            waitFor(LISTBOX).click();
             // ждем пока появится "Показывать по 12" в выпадающем списке
-            waitFor(TWELVELOCATOR);
+            waitFor(TWELVELOCATOR).click();
             // ожидание обновления страницы
             checkStalenessOf(list);
             list.clear();
-            list = checkPageIsUpdated(10);
+            list = checkPageIsUpdated(11);
             Assertions.assertEquals(12, list.size(), "Actual list size is" + list.size());
+            logger.info("Элементов на странице: " + list.size() );
         } catch (Exception e) {
             logger.error("setTwelvePerPage failed");
         }
@@ -121,8 +122,9 @@ public class Steps extends WebDriverSettings {
     public String selectFirstElement() {
         String firstEl = "";
         try {
-            checkPageIsUpdated(1);
-            firstEl = waitFor(PRODUCTNAME).getText();
+            list = checkPageIsUpdated(1);
+            firstEl = list.get(0).getText();
+                  //  waitFor(PRODUCTNAME).getText();
 
             logger.info("firstEl = " + firstEl);
             logger.info("selectFirstElement ...successful");
@@ -138,7 +140,9 @@ public class Steps extends WebDriverSettings {
 
         try {
             waitFor(SEARCHFIELD).sendKeys(element + "\n");
-            String secondFirstEl = waitFor(PRODUCTNAME).getText();
+            String secondFirstEl = wait.until(ExpectedConditions
+                    .refreshed(ExpectedConditions.elementToBeClickable(PRODUCTNAME)))
+                    .getText();
 
             Assertions.assertEquals(element, secondFirstEl, "Elements are not equal");
             logger.info("secondFirstEl = " + secondFirstEl);
