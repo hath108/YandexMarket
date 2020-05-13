@@ -17,11 +17,12 @@ public class WebDriverSettings {
     @BeforeEach
     public void startTest() {
         System.out.println("--- beforeEach ---");
-        //   System.setProperty("webdriver.chrome.driver", "C:/chromedriver/chromedriver.exe");
-        //  driver = new ChromeDriver();
-        System.setProperty("webdriver.firefox.driver", "C:/geckodriver/geckodriver.exe");
+//           System.setProperty("webdriver.chrome.driver", "C:/chromedriver/chromedriver.exe");
+//          driver = new ChromeDriver();
 
+        System.setProperty("webdriver.firefox.driver", "C:/geckodriver/geckodriver.exe");
         driver = new FirefoxDriver();
+
         wait = new WebDriverWait(driver, 15);
 
         driver.manage().window().maximize();

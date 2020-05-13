@@ -3,9 +3,11 @@ package testYandexMarket;
 
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -13,7 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Steps extends WebDriverSettings {
-    private String productName = "//h3/a[contains(@title, '')]";
+
+
+    private final By PRODUCTNAME = By.xpath("//h3/a[contains(@title, '')]");
+    private final By YANDEXMARKETPAGE = By.xpath("//a[@data-id='market']");
+    private final By PRICEFROM = By.id("glpricefrom");
+    private final By PRICETO = By.id("glpriceto");
+    private final By SEARCHFIELD = By.id("header-search");
+
+
     private List<WebElement> list;
 
     @Step("Открываем главную страницу Яндекса")
@@ -26,8 +36,8 @@ public class Steps extends WebDriverSettings {
     public void goToYandexMarket() {
 
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By
-                    .xpath("//a[@data-id='market']"))))
+            wait.until(ExpectedConditions.elementToBeClickable(driver
+                    .findElement(YANDEXMARKETPAGE)))
                     .click();
             wait.until(ExpectedConditions
                     .numberOfWindowsToBe(2));
@@ -55,15 +65,12 @@ public class Steps extends WebDriverSettings {
     @Step("Устанавливаем цену от  {from} до {to}")
     public void setPrice(String from, String to) {
         try {
-            WebElement priceFrom = wait.until(ExpectedConditions.elementToBeClickable(By.id("glpricefrom")));
-            WebElement priceTo = wait.until(ExpectedConditions.elementToBeClickable(By.id("glpriceto")));
+            WebElement priceFrom = wait.until(ExpectedConditions.elementToBeClickable(PRICEFROM));
+            WebElement priceTo = wait.until(ExpectedConditions.elementToBeClickable(PRICETO));
 
             priceFrom.sendKeys(from);
             priceTo.sendKeys(to + "\n");
 
-            // ждем обновления цены
-            wait.until(ExpectedConditions.presenceOfElementLocated(By
-                    .xpath("//div[contains(@data-bem, 'priceto\":\"30000')]")));
             System.out.println("Price is set from: " + priceFrom.getAttribute("value") + " to: " + priceTo.getAttribute("value"));
 
             System.out.println("setPrice ...successful");
@@ -76,18 +83,17 @@ public class Steps extends WebDriverSettings {
     @Step("Выбираем производителей {args}")
     public void setManufacturers(String[] args) {
         try {
-
             // проверяем что на странице загрузилось как минимум 5 ноутбуков
-            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(productName), 5));
+            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(PRODUCTNAME, 5));
+
             // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
-            List<WebElement> list = driver.findElements(By.xpath(productName));
+            List<WebElement> list = driver.findElements(PRODUCTNAME);
+
             // ждем появления на странице чекбоксов с переданными параметрами и чекаем
             for (String arg : args) {
-                wait.until(ExpectedConditions
-                        .elementToBeClickable(By
-                                .xpath("//div/span[text()='" + arg + "']")))
+                By manufacturer = By.xpath("//div/span[text()='" + arg + "']");
+                wait.until(ExpectedConditions.elementToBeClickable(manufacturer))
                         .click();
-                System.out.println(arg);
             }
             // ожидание обновления страницы
             checkStalenessOf(list);
@@ -96,9 +102,7 @@ public class Steps extends WebDriverSettings {
         } catch (Exception e) {
             System.out.println("Manufacturers not found");
         }
-
     }
-
 
     @Step("Устанавлием 12 позиций на страницу")
     public void setTwelvePerPage() {
@@ -129,10 +133,10 @@ public class Steps extends WebDriverSettings {
         String firstEl = "";
         try {
             WebDriverWait wait = new WebDriverWait(driver, 15);
-            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By
-                    .xpath(productName), 5));
+            wait.until(ExpectedConditions
+                    .numberOfElementsToBeMoreThan(PRODUCTNAME, 5));
 
-            firstEl = driver.findElement(By.xpath(productName)).getText();
+            firstEl = driver.findElement(PRODUCTNAME).getText();
             System.out.println("firstEl = " + firstEl);
             System.out.println("selectFirstElement ...successful");
 
@@ -146,11 +150,10 @@ public class Steps extends WebDriverSettings {
     public void assertFirstElement(String element) {
 
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 15);
-            driver.findElement(By.xpath("//*[@id='header-search']"))
+            driver.findElement(SEARCHFIELD)
                     .sendKeys(element + "\n");
             String secondFirstEl = wait.until(ExpectedConditions
-                    .presenceOfElementLocated(By.xpath(productName)))
+                    .presenceOfElementLocated(PRODUCTNAME))
                     .getText();
 
             System.out.println("secondFirstEl = " + secondFirstEl);
@@ -176,10 +179,9 @@ public class Steps extends WebDriverSettings {
 
     public List<WebElement> checkPageIsUpdated(int amount) {
         // проверяем что на странице загрузилось как минимум переданное кол-во ноутбуков
-        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By
-                .xpath(productName), amount));
+        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(PRODUCTNAME, amount));
         // сохраняем в список все загрузившиеся к текущему моменту ноутбуки
-        list = driver.findElements(By.xpath(productName));
+        list = driver.findElements(PRODUCTNAME);
         System.out.println("checkPageIsUpdated ...successful");
         return list;
     }
